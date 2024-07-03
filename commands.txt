@@ -2,9 +2,7 @@ from netmiko import ConnectHandler
 import datetime
 import os
 from colorama import init, Fore, Style
-
 init(autoreset=True)
-
 platform = 'cisco_ios'
 username = 'your_username'  # Replace with SSH Username
 password = 'your_password'  # Replace with SSH Password
