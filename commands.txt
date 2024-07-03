@@ -9,7 +9,7 @@ platform = 'cisco_ios'
 username = 'your_username'  # Replace with SSH Username
 password = 'your_password'  # Replace with SSH Password
 today = datetime.date.today()
-file_path = '/home/cial/switch.txt'
+file_path = '/home/switch.txt'
 
 # Get the absolute path of the switch.txt file
 current_directory = os.path.dirname(os.path.abspath(__file__))
