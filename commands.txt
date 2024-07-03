@@ -1,0 +1,66 @@
+from netmiko import ConnectHandler
+import datetime
+import os
+from colorama import init, Fore, Style
+
+init(autoreset=True)
+
+platform = 'cisco_ios'
+username = 'your_username'  # Replace with SSH Username
+password = 'your_password'  # Replace with SSH Password
+today = datetime.date.today()
+file_path = '/home/cial/switch.txt'
+
+# Get the absolute path of the switch.txt file
+current_directory = os.path.dirname(os.path.abspath(__file__))
+switch_path = os.path.join(current_directory, 'switch.txt')
+
+# Commands to execute on the Cisco switch
+commands = [
+    'conf t',
+    'logging host 192.168.1.9',
+    'logging host 192.168.1.10',
+    'exit',
+]
+
+def execute_ssh_commands(device, commands):
+    connection = None  # Initialize connection variable
+    try:
+        connection = ConnectHandler(**device)
+        output = connection.send_config_set(commands)
+        print(Fore.GREEN + f"Output of commands on {device['host']}:\n{output}")
+        
+        # Save the configuration
+        save_output = connection.save_config()
+        print(Fore.GREEN + f"Output of 'write memory' on {device['host']}:\n{save_output}")
+
+    except Exception as e:
+        print(Fore.RED + f"An error occurred on {device['host']}: {e}")
+
+    finally:
+        # Disconnect the SSH connection if it was established
+        if connection:
+            connection.disconnect()
+
+# Read the list of switches from the file
+with open(switch_path) as f:
+    switches = f.readlines()
+
+# Iterate through the list of IP addresses and execute the function for each
+for switch in switches:
+    switch = switch.strip()  # Remove any leading/trailing whitespace/newlines
+    if switch:
+        device = {
+            'device_type': platform,
+            'host': switch,
+            'username': username,
+            'password': password,
+        }
+        execute_ssh_commands(device, commands)
+
+# Remove the switch.txt file after processing
+try:
+    os.remove(switch_path)
+    print(Fore.BLUE + f"File {switch_path} has been removed successfully.")
+except Exception as e:
+    print(Fore.RED + f"An error occurred while trying to remove the file {switch_path}: {e}")
